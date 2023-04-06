@@ -8,14 +8,14 @@ public class Q10_Matrix {
         int num = scanner.nextInt();
         int[][] array = new int[num][num];
         int k = 0;
-        
+
         for (int i = 0; i < array.length; i++) {
-            for (int j = 0 ; j < array.length; j++) {
+            for (int j = 0; j < array.length; j++) {
                 array[i][j] = k++;
                 System.out.print(array[i][j] + "\t");
             }
             System.out.println("\n");
-        } 
+        }
         scanner.close();
     }
 }

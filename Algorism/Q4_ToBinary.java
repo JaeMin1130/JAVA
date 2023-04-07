@@ -18,6 +18,7 @@ public class Q4_ToBinary {
                 break;
             i++;
         }
+        
         for (int j = i; j >= 0; j--) {
             System.out.print(list.get(j));
         }

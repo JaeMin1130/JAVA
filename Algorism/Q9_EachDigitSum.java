@@ -19,13 +19,12 @@ public class Q9_EachDigitSum {
         System.out.println("수를 입력하세요.");
         int num2 = scanner.nextInt();
         int digitsum2 = 0;
-        
+
         while (num2 > 0) {
             digitsum2 += num2 % 10;
             num2 /= 10;
         }
         System.out.println("각 자릿수의 합 = " + digitsum2);
-        
         scanner.close();
     }
 }

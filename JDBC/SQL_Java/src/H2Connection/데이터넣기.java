@@ -1,0 +1,85 @@
+package H2Connection;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Random;
+
+public class 데이터넣기 {
+	static Connection con = null;
+
+	private static void connectDB() {
+		try {
+			Class.forName("org.h2.Driver");
+			con = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/telephone", "Iru", "11300315");
+			System.out.println("데이터베이스가 연결되었습니다.");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void closeDB() {
+		try {
+			con.close();
+			System.out.println("데이터베이스가 닫혔습니다.");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void insertContactWithStatement(Connection con) {
+		Statement st = null;
+		String[] cate = { "친구", "가족", "직장동료", "기타" };
+		Random rd = new Random();
+		int totcnt = 1000000;
+
+		try {
+			st = con.createStatement();
+			for (int i = 1; i <= totcnt; i++) {
+
+				String name = "name" + i;
+				String category = cate[rd.nextInt(4)];
+				String address = "address" + i;
+				String workplace = "place" + i;
+				String birthday = String.format("%4d-%02d-%02d", rd.nextInt(1950, 2022), rd.nextInt(1, 13),
+						rd.nextInt(1, 29));
+				String sql = String.format(
+						"insert into Contact (CID, name, category, address, workplace, birthday) "
+								+ "values('%d', '%s', '%s', '%s', '%s', '%s')",
+						i, name, category, address, workplace, birthday);
+				st.executeUpdate(sql);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void insertPhoneWithPreparedStatement(Connection con) {
+		try {
+			int totcnt = 1000000;
+			Random rd = new Random();
+			String[] type = { "휴대전화", "집전화", "회사전화", "팩스", "기타" };
+			String sql = "insert into phone (cid, seq, number, type) values (?, ?, ?, ?)";
+			PreparedStatement pst = con.prepareStatement(sql);
+			for (int i = 0; i < totcnt; i++) {
+				pst.setInt(1, i);
+				pst.setInt(2, i);
+				pst.setString(3, String.format("010-%4d-%4d", rd.nextInt(1000, 10000), rd.nextInt(1000, 10000)));
+				pst.setString(4, type[rd.nextInt(5)]);
+				pst.executeUpdate();
+			}
+		} catch (Exception e) {
+
+		}
+	}
+
+	public static void main(String[] args) {
+		connectDB();
+		insertContactWithStatement(con);
+//		insertPhoneWithPreparedStatement(con);
+		closeDB();
+	}
+
+}

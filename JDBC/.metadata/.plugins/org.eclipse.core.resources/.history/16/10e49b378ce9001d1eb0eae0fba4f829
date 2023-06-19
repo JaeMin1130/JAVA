@@ -1,0 +1,129 @@
+package SQLConnection;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+public class 데이터넣기 {
+
+	Connection con = null;
+
+	// PreparedStatement는 값이 안 정해졌을때 (setT 메서드로 값을 넣는다.)
+	public void insertDeptPs(String dno, String dname, int budget) {
+		String sql = "insert into dept (dno, dname, budget) values (?, ?, ?)";
+		try {
+			PreparedStatement ps = con.prepareStatement(sql);
+			ps.setString(1, dno);
+			ps.setString(2, dname);
+			ps.setInt(3, budget);
+			ps.executeUpdate(); // insert, delete , update일 때 / select일 때는 'executeQuery' + 'ResultSet'
+
+			System.out.println("데이터가 입력되었습니다.");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	// Statement는 값이 다 정해졌을 때
+	public void insertDeptSt(String dno, String dname, int budget) {
+		String sql = String.format("insert into dept (dno, dname, budget) values ('%s', '%s', '%d')", dno, dname,
+				budget);
+		try {
+			Statement st = con.createStatement();
+			st.executeUpdate(sql);
+
+			System.out.println("데이터가 입력되었습니다.");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void deleteDeptTriggerPs(int i, int j) {
+		String sql = "delete from deptTrigger where id > ? and id < ?";
+		try {
+			PreparedStatement ps = con.prepareStatement(sql);
+			ps.setInt(1, i);
+			ps.setInt(2, j);
+			ps.executeUpdate(); 
+
+			System.out.println("데이터가 삭제되었습니다.");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void deleteDeptTriggerSt(int i, int j) {
+		String sql = String.format("delete from deptTrigger where id > %d and id < %d", i, j);
+		try {
+			Statement ps = con.createStatement();
+			ps.executeUpdate(sql); 
+
+			System.out.println("데이터가 삭제되었습니다.");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void updateDeptPs(String dno, String dname, int budget) {
+		String sql = "update dept set dname = ?, budget = ? where dno = ?";
+		try {
+			PreparedStatement ps = con.prepareStatement(sql);
+			ps.setString(1, dname);
+			ps.setInt(2, budget);
+			ps.setString(3, dno);
+			ps.executeUpdate(); 
+
+			System.out.println("데이터가 변경되었습니다.");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void updateDeptSt(String dno, String dname, int budget) {
+		String sql = String.format("update dept set dname = %s, budget = %d where dno = %s", dname, budget, dno);
+		try {
+			Statement ps = con.createStatement();
+			ps.executeUpdate(sql); 
+
+			System.out.println("데이터가 변경되었습니다.");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private boolean connectDB() {
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			con = DriverManager.getConnection("jdbc:mysql://localhost:3306/warehouse", "Iru", "11300315");
+			System.out.println("데이터베이스가 연결되었습니다.");
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	private void closeDB() {
+		try {
+			con.close();
+			System.out.println("데이터베이스가 닫혔습니다.");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void main(String[] args) {
+		데이터넣기 test = new 데이터넣기();
+		if (test.connectDB()) {
+//			test.insertDeptPs("d34", "Coco", 180);
+//			test.insertDeptSt("d43", "ace", 180);
+//			test.deleteDeptTriggerPs(1, 5);
+//			test.deleteDeptTriggerSt(4, 8);
+			test.updateDeptPs("d1", "JaeMin", 55);
+			test.closeDB();
+		}
+	}
+
+}

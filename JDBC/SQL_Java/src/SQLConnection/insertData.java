@@ -1,0 +1,83 @@
+package SQLConnection;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Random;
+
+public class insertData {
+	static Connection con = null;
+
+	private static void connectDB() {
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			con = DriverManager.getConnection("jdbc:mysql://localhost:3306/warehouse", "Iru", "11300315");
+			System.out.println("데이터베이스가 연결되었습니다.");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void closeDB() {
+		try {
+			con.close();
+			System.out.println("데이터베이스가 닫혔습니다.");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void insertContactWithStatement(Connection con) {
+		Statement st = null;
+		Random rd = new Random();
+		int totcnt = 500000;
+
+		try {
+			st = con.createStatement();
+			for (int i = 1; i <= totcnt; i++) {
+
+				String name = "name" + i;
+				int age = rd.nextInt(20, 100);
+				double vision = rd.nextDouble(2);
+				double height = rd.nextDouble(150, 200);
+				String sql = String.format(
+						"insert into testjdbc (id, name, age, vision, height) "
+								+ "values('%d', '%s', '%d', '%.1f', '%.1f')",
+						i, name, age, vision, height);
+				st.executeUpdate(sql);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void insertPhoneWithPreparedStatement(Connection con) {
+		try {
+			int totcnt = 1000000;
+			Random rd = new Random();
+			String sql = "insert into testjdbc (id, name, age, vision, height) values (?, ?, ?, ?, ?)";
+			PreparedStatement pst = con.prepareStatement(sql);
+			for (int i = 500001; i < totcnt; i++) {
+				pst.setInt(1, i);
+				pst.setString(2, "name" + 500001);
+				pst.setInt(3, rd.nextInt(20, 100));
+				pst.setDouble(4, rd.nextDouble(2));
+				pst.setDouble(5, rd.nextDouble(150, 200));
+				pst.executeUpdate();
+			}
+		} catch (Exception e) {
+
+		}
+	}
+
+	public static void main(String[] args) {
+		connectDB();
+//		insertContactWithStatement(con);
+		insertPhoneWithPreparedStatement(con);
+		closeDB();
+	}
+
+}
+

@@ -1,0 +1,50 @@
+package SQLConnection;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+public class h2Connection {
+	public static void main(String[] args) throws SQLException {
+
+		String driver = "org.h2.Driver";
+		String url = "jdbc:h2:tcp://localhost/~/telephone";
+		String userName = "Iru";
+		String password = "11300315";
+
+		Connection con = DriverManager.getConnection(url, userName, password);
+
+		try {
+			Class.forName(driver);
+			System.out.println("Connection Success");
+			for (int i = 0; i < 100; i++) {
+				String sql = String.format("insert into dept (dno, dname, budget) values ('%s', '%s', '%d')", "trash", "trash",
+						i);
+				try {
+					Statement st = con.createStatement();
+					st.executeUpdate(sql);
+
+					System.out.println("데이터가 입력되었습니다.");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+
+		} finally {
+			try {
+				if (con != null) {
+					con.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		
+	}
+}

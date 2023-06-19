@@ -1,0 +1,65 @@
+package SQLConnection;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+public class h2Connection {
+	public static void main(String[] args) throws SQLException {
+
+		String driver = "org.h2.Driver";
+		String url = "jdbc:h2:tcp://localhost/~/telephone";
+		String userName = "Iru";
+		String password = "11300315";
+
+		Connection con = DriverManager.getConnection(url, userName, password);
+		Statement st = null;
+
+		try {
+			Class.forName(driver);
+			System.out.println("Connection Success");
+
+			String sql = "insert into contact (name, category, address, workplace, birthday) values (?, ?, ?, ?, ?)";
+			try {
+				PreparedStatement ps = con.prepareStatement(sql);
+				ps.setString(1, "Iru");
+				ps.setString(2, "가족");
+				ps.setString(3, "금정구");
+				ps.setString(4, "없음");
+				ps.setInt(5, 2020-02-14);
+				ps.executeUpdate(); 
+
+				System.out.println("데이터가 입력되었습니다.");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			try {
+				ResultSet rs = st.executeQuery("select * from dept");
+				while (rs.next()) {
+					System.out.println(String.format("%s, %s, %d", rs.getString("dno"), rs.getString("dname"),
+							rs.getInt("budget")));
+				}
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+
+		} finally {
+			try {
+				if (con != null) {
+					con.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+
+	}
+}

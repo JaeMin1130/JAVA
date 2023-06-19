@@ -1,0 +1,65 @@
+package H2Connection;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Random;
+
+public class 데이터넣기 {
+static Connection con = null;
+	
+	private static boolean connectDB() {
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			con = DriverManager.getConnection("jdbc:mysql://localhost:3306/warehouse", "Iru", "11300315");
+			System.out.println("데이터베이스가 연결되었습니다.");
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	private static void closeDB() {
+		try {
+			con.close();
+			System.out.println("데이터베이스가 닫혔습니다.");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static void insertContactWithStatement(Connection con) {
+		Statement st = null;
+		String[] cate = {"친구", "가족", "직장동료", "기타"};
+		Random rd = new Random();
+		int totcnt = 100;
+		
+		try {
+			st = con.createStatement();
+			
+			for (int i = 1; i <= totcnt; i++) {
+				
+				String name = "name" + i;
+				String category = cate[rd.nextInt(4)];
+				String address = "address" + i;
+				String company = "company" + i;
+				String birthday = String.format("%4d-%02d-%02d", 
+						rd.nextInt(1950, 2022), rd.nextInt(1, 13), rd.nextInt(1, 29));
+				
+				System.out.println(String.format("%.2f : %d/%d", i*100/(double)totcnt, i, totcnt));
+				
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	public static void main(String[] args) {
+		connectDB();
+		insertContactWithStatement(con);
+		closeDB();
+	}
+		
+	
+}

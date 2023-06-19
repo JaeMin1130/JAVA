@@ -1,0 +1,10 @@
+ 
+package Chapter04;
+
+import java.util.Stack;
+
+public class 스택 {
+	public static void main(String[] args) {
+		Stack<String> stack = new Stack<String>();
+	}
+}

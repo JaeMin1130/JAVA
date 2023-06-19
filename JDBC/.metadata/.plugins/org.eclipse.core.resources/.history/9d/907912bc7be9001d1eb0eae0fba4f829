@@ -1,0 +1,52 @@
+package SQLConnection;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+public class 데이터넣기 {
+
+	Connection con = null;
+	Statement st = null;
+	ResultSet rs = null;
+
+	public void insertDept(Connection con, String dno, String dname, int budget) {
+		try {
+			st = con.createStatement();
+			rs = st.executeQuery(
+					"insert into dept (dno, dname, budget) values (" + dno + "," + dno + "," + budget + ")");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private boolean connectDB() {
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			con = DriverManager.getConnection("jdbc:mysql://localhost:3306/warehouse", "Iru", "11300315");
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	private void closeDB() {
+		try {
+			con.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void main(String[] args) {
+		데이터넣기 test = new 데이터넣기();
+		if (test.connectDB()) {
+			test.insertDept(test.con,"d4", "Kim", 230);
+			test.closeDB();
+		}
+	}
+
+}

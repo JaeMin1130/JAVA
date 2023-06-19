@@ -1,0 +1,116 @@
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+class Connect {
+	static Connection con = null;
+
+	static void connectDB() {
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			con = DriverManager.getConnection("jdbc:mysql://localhost:3306/warehouse", "Iru", "11300315");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	static void closeDB() {
+		try {
+			con.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+}
+
+class Query extends Connect {
+	int num;
+	String question;
+	String sql;
+
+	Query() {
+	}
+
+	Query(int num, String question, String sql) {
+		this.num = num;
+		this.question = question;
+		this.sql = sql;
+	}
+
+	public static void exe(String SQL) {
+		Statement st = null;
+		ResultSet rs = null;
+		try {
+			Connect.connectDB();
+			st = con.createStatement();
+			rs = st.executeQuery(SQL);
+
+			ResultSetMetaData rsmd = rs.getMetaData();
+			// column 속성 출력
+			for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+				System.out.print(String.format("%13s",rsmd.getColumnName(i)));
+			}
+			System.out.println("\n----------------------------------------------");
+			// 데이터 출력
+			while (rs.next()) {
+				for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+					System.out.print(String.format("%13s",rs.getObject(i)));
+				}
+				System.out.println();
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		Connect.closeDB();
+	}
+}
+
+public class Mission extends Query {
+
+	public static void main(String[] args) {
+
+		ArrayList<Query> list = new ArrayList<>();
+		list.add(new Query(1, "London에 있는 프로젝트 이름을 찾아라.", "select jname from j where city = 'London'"));
+		list.add(new Query(2, "프로젝트 j1에 참여하는 공급자의 이름을 찾아라.", "select sname from spj, s where jno = 'J1' and spj.sno = s.sno"));
+		list.add(new Query(3, "공급 수량이 300 이상 750 이하인 모든 공급의 sno, pno, qty를 찾아라.", "select sno, pno, qty from spj where qty >= 300 and qty <= 750 order by qty"));
+		list.add(new Query(4, "부품의 color와 city의 모든 쌍을 찾아라. 같은 쌍은 한 번만 검색되어야 한다.", "select distinct color, city from p"));
+		list.add(new Query(5, "같은 도시에 있는 공급자, 부품, 프로젝트의 모든 sno, pno, jno 쌍을 찾아라.", "select sno, pno, jno, s.city from s, p, j where s.city = p.city and p.city = j.city"));
+		list.add(new Query(6, "같은 도시에 있지 않는 공급자, 부품, 프로젝트의 sno, pno, jno를 찾아라.", "select distinct sno, pno, jno, s.city from s, p, j where s.city != p.city and p.city != j.city order by city;\r\n"));
+		list.add(new Query(7, "London에 있는 공급자에 의해 공급된 부품의 번호, 이름을 찾아라.", "select spj.pno, pname from p, spj, s where s.city = 'London' and spj.sno = s.sno and spj.pno = p.pno"));
+		list.add(new Query(8, "London에 있는 공급자가 London의 프로젝트에 공급한 부품의 부품 번호와 이름을 찾아라.", "select p.pno, pname, s.sno, j.jno from p, spj, j, s where spj.pno = p.pno and spj.jno = j.jno and spj.sno = s.sno	and j.city = 'London' and s.city = 'London'"));
+		list.add(new Query(9, "한 도시에 있는 공급자가 다른 도시에 있는 프로젝트에 공급할 때 공급자 도시, 프로젝트 도시 쌍을 구하라.", "select concat(s.city, '-', j.city) as 'city' , spj.sno, spj.jno from s, j, spj where spj.jno = j.jno and spj.sno = s.sno and s.city != j.city order by sno"));
+		list.add(new Query(10, "한 도시에 있는 공급자가 같은 도시에 있는 프로젝트에 공급하는 부품의 부품 번호와 이름을 찾아라.", "select concat(s.city, '-', j.city) as 'city' , spj.sno, spj.jno from s, j, spj where spj.jno = j.jno and spj.sno = s.sno and s.city = j.city order by sno"));
+
+		Scanner scanner = new Scanner(System.in);
+		while (true) {
+			System.out.println("\n문제 목록" + "\n----------------------------------------------------------------");
+			for (Query qe : list) {
+				System.out.println(String.format("%d번 : %s", qe.num, qe.question));
+			}
+			System.out.println("----------------------------------------------------------------" 
+								+ "\n문제 번호 선택<0:exit, 99:쿼리문 직접 작성하기>: ");
+			String num = scanner.nextLine();
+			if (num.equals("0")) {
+				System.out.println("프로그램을 종료합니다.");
+				scanner.close();
+				break;
+			}
+			
+			else if(num.equals("99")) {
+				System.out.println("\n쿼리문을 입력하세요.");
+				String SQL = scanner.nextLine();
+				System.out.println();
+				Query.exe(SQL);
+				
+			}else {
+				System.out.println("\n쿼리문 : " + list.get(Integer.parseInt(num) - 1).sql + "\n");
+				Query.exe(list.get(Integer.parseInt(num) - 1).sql);
+			}
+		}
+	}
+}

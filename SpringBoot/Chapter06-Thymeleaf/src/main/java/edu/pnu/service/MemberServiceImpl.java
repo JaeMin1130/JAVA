@@ -1,0 +1,36 @@
+package edu.pnu.service;
+
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import edu.pnu.domain.Member;
+import edu.pnu.persistence.MemberRepository;
+
+@Service
+public class MemberServiceImpl implements MemberService{
+	@Autowired
+	private MemberRepository memberRepo;
+	
+	@Override
+	public Member getMember(Member member) {
+		Optional<Member> findMember = memberRepo.findById(member.getId());
+		if(findMember.isPresent()) {
+			return findMember.get();
+		}else {
+			return null; 
+		}
+	}
+
+	@Override
+	public boolean insertMember(Member member) {
+		if(memberRepo.findById(member.getId()).isEmpty()) {
+			member.setRole("ROLE_USER");
+			memberRepo.save(member);
+			return true;
+		}else {
+			return false;
+		}
+	}
+}
